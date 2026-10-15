@@ -1,20 +1,54 @@
-Online Recipe Sharing Platform
+# Online Recipe Sharing Platform
 
--Project Overview
+## About the Project
 
-The **Online Recipe Sharing Platform** is a software project designed to provide a convenient platform for sharing, exploring, and discovering different recipes. It aims to make it easier for users to access cooking ideas and share their culinary knowledge.
+The Online Recipe Sharing Platform is our academic project. The main idea of this project is to create a platform where users can explore different recipes and share their own recipes with others. It is intended to make finding and sharing cooking ideas easier.
 
--Project Objectives
+## Technologies Used
 
-* To provide a platform for sharing and discovering recipes.
-* To organize recipe information in an accessible format.
-* To encourage users to exchange cooking ideas.
-* To design a user-friendly system for recipe management.
+* Java
+* Java Swing
+* MySQL
+* JDBC
+* IntelliJ IDEA
 
--Technologies
+## Requirements
 
-The proposed implementation uses Java, Java Swing, MySQL, and JDBC, subject to the final project implementation.
+To run this project, the following software is required:
 
--Team
+* JDK 17 or above
+* IntelliJ IDEA or any Java IDE
+* MySQL Server
+* MySQL Connector/J
 
-Developed collaboratively by a team of four members- Shreya Gupta, Manshi Bajpai, Ishika Narayan, Arifa Fatima as an academic project.
+## Project Setup
+
+1. Download or clone the repository from GitHub.
+2. Open the project in IntelliJ IDEA.
+3. Make sure Java is installed and configured properly.
+4. Install MySQL Server if the project uses the database.
+5. Create the required database and configure the database connection details.
+6. Add the MySQL JDBC driver to the project.
+
+## How to Run
+
+1. Open the project in IntelliJ IDEA.
+2. Check that all the required dependencies are configured.
+3. Make sure the database connection is working, if required.
+4. Open the main Java file.
+5. Click the Run button to start the application.
+
+## Repository Contents
+
+* Project Report
+* Project Presentation
+* README file
+* Other project-related files and documentation
+
+## Team
+
+This project is being developed by a team of four members as part of our academic work.
+
+## Purpose
+
+This repository contains our project report, presentation, and related files for project documentation and submission.
