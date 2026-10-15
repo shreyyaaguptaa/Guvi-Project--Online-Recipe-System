@@ -1,0 +1,537 @@
+import java.util.*;
+
+public class RecipePlatform {
+
+    static class User {
+        int id;
+        String name, email, role;
+
+        User(int id, String name, String email, String role) {
+            this.id = id;
+            this.name = name;
+            this.email = email;
+            this.role = role;
+        }
+    }
+
+    static class Recipe {
+        int id;
+        String title, ingredients, instructions, photo, status;
+        double rating;
+        int ratingCount;
+        List<String> comments = new ArrayList<>();
+
+        Recipe(int id, String title, String ingredients,
+               String instructions, String photo) {
+            this.id = id;
+            this.title = title;
+            this.ingredients = ingredients;
+            this.instructions = instructions;
+            this.photo = photo;
+            this.status = "Pending";
+        }
+    }
+
+    static Scanner sc = new Scanner(System.in);
+    static List<User> users = new ArrayList<>();
+    static List<Recipe> recipes = new ArrayList<>();
+    static Map<String, String> settings = new HashMap<>();
+
+    static int userId = 1;
+    static int recipeId = 1;
+
+    static User currentUser;
+
+    public static void main(String[] args) {
+        users.add(new User(userId++, "Admin", "admin@gmail.com", "Admin"));
+        settings.put("PlatformName", "Recipe Sharing Platform");
+        settings.put("AllowComments", "Yes");
+
+        while (true) {
+            System.out.println("\n===== RECIPE SHARING PLATFORM =====");
+            System.out.println("1. Register");
+            System.out.println("2. Login");
+            System.out.println("3. Exit");
+            System.out.print("Enter choice: ");
+
+            int choice = readInt();
+
+            switch (choice) {
+                case 1:
+                    registerUser();
+                    break;
+                case 2:
+                    login();
+                    break;
+                case 3:
+                    System.out.println("Thank you for using the platform.");
+                    return;
+                default:
+                    System.out.println("Invalid choice.");
+            }
+        }
+    }
+
+    static int readInt() {
+        try {
+            return Integer.parseInt(sc.nextLine().trim());
+        } catch (NumberFormatException e) {
+            return -1;
+        }
+    }
+
+    static void registerUser() {
+        System.out.print("Enter name: ");
+        String name = sc.nextLine();
+
+        System.out.print("Enter email: ");
+        String email = sc.nextLine();
+
+        for (User user : users) {
+            if (user.email.equalsIgnoreCase(email)) {
+                System.out.println("Email already registered.");
+                return;
+            }
+        }
+
+        users.add(new User(userId++, name, email, "User"));
+        System.out.println("User registered successfully.");
+    }
+
+    static void login() {
+        System.out.print("Enter email: ");
+        String email = sc.nextLine();
+
+        currentUser = null;
+
+        for (User user : users) {
+            if (user.email.equalsIgnoreCase(email)) {
+                currentUser = user;
+                break;
+            }
+        }
+
+        if (currentUser == null) {
+            System.out.println("Account not found.");
+            return;
+        }
+
+        if (currentUser.role.equals("Admin")) {
+            adminDashboard();
+        } else {
+            userDashboard();
+        }
+    }
+
+    static void adminDashboard() {
+        while (true) {
+            System.out.println("\n===== ADMIN DASHBOARD =====");
+            System.out.println("1. View Users");
+            System.out.println("2. Add User");
+            System.out.println("3. Update User");
+            System.out.println("4. Delete User");
+            System.out.println("5. View Recipes");
+            System.out.println("6. Approve Recipe");
+            System.out.println("7. Reject Recipe");
+            System.out.println("8. System Settings");
+            System.out.println("9. Recipe Statistics");
+            System.out.println("10. User Activity Monitoring");
+            System.out.println("11. Logout");
+            System.out.print("Enter choice: ");
+
+            int choice = readInt();
+
+            switch (choice) {
+                case 1:
+                    viewUsers();
+                    break;
+                case 2:
+                    registerUser();
+                    break;
+                case 3:
+                    updateUser();
+                    break;
+                case 4:
+                    deleteUser();
+                    break;
+                case 5:
+                    viewRecipes();
+                    break;
+                case 6:
+                    changeRecipeStatus("Approved");
+                    break;
+                case 7:
+                    changeRecipeStatus("Rejected");
+                    break;
+                case 8:
+                    updateSettings();
+                    break;
+                case 9:
+                    showStatistics();
+                    break;
+                case 10:
+                    showActivity();
+                    break;
+                case 11:
+                    currentUser = null;
+                    return;
+                default:
+                    System.out.println("Invalid choice.");
+            }
+        }
+    }
+
+    static void userDashboard() {
+        while (true) {
+            System.out.println("\n===== USER DASHBOARD =====");
+            System.out.println("1. Share Recipe");
+            System.out.println("2. Discover Recipes");
+            System.out.println("3. Search Recipe");
+            System.out.println("4. Rate Recipe");
+            System.out.println("5. Comment on Recipe");
+            System.out.println("6. View My Recipes");
+            System.out.println("7. Logout");
+            System.out.print("Enter choice: ");
+
+            int choice = readInt();
+
+            switch (choice) {
+                case 1:
+                    shareRecipe();
+                    break;
+                case 2:
+                    viewRecipes();
+                    break;
+                case 3:
+                    searchRecipe();
+                    break;
+                case 4:
+                    rateRecipe();
+                    break;
+                case 5:
+                    commentRecipe();
+                    break;
+                case 6:
+                    viewMyRecipes();
+                    break;
+                case 7:
+                    currentUser = null;
+                    return;
+                default:
+                    System.out.println("Invalid choice.");
+            }
+        }
+    }
+
+    static void viewUsers() {
+        System.out.println("\nID\tName\tEmail\tRole");
+
+        for (User user : users) {
+            System.out.println(user.id + "\t" + user.name + "\t"
+                    + user.email + "\t" + user.role);
+        }
+    }
+
+    static void updateUser() {
+        viewUsers();
+        System.out.print("Enter user ID: ");
+        int id = readInt();
+
+        User user = findUser(id);
+
+        if (user == null || user.id == currentUser.id) {
+            System.out.println("User not found or cannot update own account here.");
+            return;
+        }
+
+        System.out.print("Enter new name: ");
+        user.name = sc.nextLine();
+
+        System.out.print("Enter new email: ");
+        String email = sc.nextLine();
+
+        for (User other : users) {
+            if (other != user && other.email.equalsIgnoreCase(email)) {
+                System.out.println("Email already in use.");
+                return;
+            }
+        }
+
+        user.email = email;
+
+        System.out.print("Enter role (Admin/User): ");
+        String role = sc.nextLine();
+
+        if (role.equalsIgnoreCase("Admin") ||
+                role.equalsIgnoreCase("User")) {
+            user.role = role.equalsIgnoreCase("Admin") ? "Admin" : "User";
+        }
+
+        System.out.println("User updated successfully.");
+    }
+
+    static User findUser(int id) {
+        for (User user : users) {
+            if (user.id == id) {
+                return user;
+            }
+        }
+        return null;
+    }
+
+    static void deleteUser() {
+        viewUsers();
+        System.out.print("Enter user ID to delete: ");
+        int id = readInt();
+
+        User user = findUser(id);
+
+        if (user == null || user.id == currentUser.id) {
+            System.out.println("User not found or cannot delete own account.");
+            return;
+        }
+
+        users.remove(user);
+        System.out.println("User deleted successfully.");
+    }
+
+    static void shareRecipe() {
+        System.out.print("Enter recipe title: ");
+        String title = sc.nextLine();
+
+        System.out.print("Enter ingredients: ");
+        String ingredients = sc.nextLine();
+
+        System.out.print("Enter instructions: ");
+        String instructions = sc.nextLine();
+
+        System.out.print("Enter photo URL or file name: ");
+        String photo = sc.nextLine();
+
+        Recipe recipe = new Recipe(
+                recipeId++, title, ingredients, instructions, photo
+        );
+
+        recipeOwner.put(recipe.id, currentUser.id);
+        recipes.add(recipe);
+
+        logActivity(currentUser.name + " submitted recipe: " + title);
+        System.out.println("Recipe submitted successfully. Awaiting approval.");
+    }
+
+    static Map<Integer, Integer> recipeOwner = new HashMap<>();
+    static List<String> activities = new ArrayList<>();
+
+    static void viewRecipes() {
+        System.out.println("\n===== RECIPES =====");
+
+        for (Recipe recipe : recipes) {
+            if (currentUser.role.equals("Admin")
+                    || recipe.status.equals("Approved")) {
+                displayRecipe(recipe);
+            }
+        }
+    }
+
+    static void displayRecipe(Recipe recipe) {
+        System.out.println("\nID: " + recipe.id);
+        System.out.println("Title: " + recipe.title);
+        System.out.println("Ingredients: " + recipe.ingredients);
+        System.out.println("Instructions: " + recipe.instructions);
+        System.out.println("Photo: " + recipe.photo);
+        System.out.println("Status: " + recipe.status);
+        System.out.println("Rating: " +
+                (recipe.ratingCount == 0 ? "No ratings" :
+                        String.format("%.1f/5", recipe.rating)));
+        System.out.println("Comments: " + recipe.comments);
+    }
+
+    static Recipe findRecipe(int id) {
+        for (Recipe recipe : recipes) {
+            if (recipe.id == id) {
+                return recipe;
+            }
+        }
+        return null;
+    }
+
+    static void changeRecipeStatus(String status) {
+        viewRecipes();
+        System.out.print("Enter recipe ID: ");
+        int id = readInt();
+
+        Recipe recipe = findRecipe(id);
+
+        if (recipe == null || !recipe.status.equals("Pending")) {
+            System.out.println("Pending recipe not found.");
+            return;
+        }
+
+        recipe.status = status;
+        logActivity("Admin " + status.toLowerCase() +
+                " recipe: " + recipe.title);
+
+        System.out.println("Recipe " + status.toLowerCase() + " successfully.");
+    }
+
+    static void searchRecipe() {
+        System.out.print("Enter recipe title or ingredient: ");
+        String query = sc.nextLine().toLowerCase();
+
+        boolean found = false;
+
+        for (Recipe recipe : recipes) {
+            if (recipe.status.equals("Approved") &&
+                    (recipe.title.toLowerCase().contains(query) ||
+                            recipe.ingredients.toLowerCase().contains(query))) {
+                displayRecipe(recipe);
+                found = true;
+            }
+        }
+
+        if (!found) {
+            System.out.println("No approved recipes found.");
+        }
+    }
+
+    static void rateRecipe() {
+        viewRecipes();
+        System.out.print("Enter recipe ID: ");
+        Recipe recipe = findRecipe(readInt());
+
+        if (recipe == null || !recipe.status.equals("Approved")) {
+            System.out.println("Approved recipe not found.");
+            return;
+        }
+
+        System.out.print("Enter rating (1-5): ");
+        int rating = readInt();
+
+        if (rating < 1 || rating > 5) {
+            System.out.println("Rating must be between 1 and 5.");
+            return;
+        }
+
+        recipe.rating =
+                (recipe.rating * recipe.ratingCount + rating)
+                        / (recipe.ratingCount + 1);
+
+        recipe.ratingCount++;
+
+        logActivity(currentUser.name + " rated " + recipe.title);
+        System.out.println("Rating submitted successfully.");
+    }
+
+    static void commentRecipe() {
+        if (!settings.getOrDefault("AllowComments", "Yes").equalsIgnoreCase("Yes")) {
+            System.out.println("Comments are currently disabled.");
+            return;
+        }
+
+        viewRecipes();
+        System.out.print("Enter recipe ID: ");
+        Recipe recipe = findRecipe(readInt());
+
+        if (recipe == null || !recipe.status.equals("Approved")) {
+            System.out.println("Approved recipe not found.");
+            return;
+        }
+
+        System.out.print("Enter your comment: ");
+        String comment = sc.nextLine();
+
+        recipe.comments.add(currentUser.name + ": " + comment);
+        logActivity(currentUser.name + " commented on " + recipe.title);
+
+        System.out.println("Comment added successfully.");
+    }
+
+    static void viewMyRecipes() {
+        boolean found = false;
+
+        for (Recipe recipe : recipes) {
+            if (recipeOwner.getOrDefault(recipe.id, -1) == currentUser.id) {
+                displayRecipe(recipe);
+                found = true;
+            }
+        }
+
+        if (!found) {
+            System.out.println("You have not shared any recipes.");
+        }
+    }
+
+    static void updateSettings() {
+        System.out.println("\nCurrent Settings: " + settings);
+        System.out.println("1. Change Platform Name");
+        System.out.println("2. Enable or Disable Comments");
+        System.out.print("Enter choice: ");
+
+        int choice = readInt();
+
+        if (choice == 1) {
+            System.out.print("Enter new platform name: ");
+            settings.put("PlatformName", sc.nextLine());
+        } else if (choice == 2) {
+            System.out.print("Allow comments? (Yes/No): ");
+            String value = sc.nextLine();
+
+            if (!value.equalsIgnoreCase("Yes") &&
+                    !value.equalsIgnoreCase("No")) {
+                System.out.println("Invalid setting.");
+                return;
+            }
+
+            settings.put("AllowComments",
+                    value.equalsIgnoreCase("Yes") ? "Yes" : "No");
+        } else {
+            System.out.println("Invalid choice.");
+            return;
+        }
+
+        System.out.println("Settings updated successfully.");
+    }
+
+    static void showStatistics() {
+        int pending = 0;
+        int approved = 0;
+        int rejected = 0;
+        int totalRatings = 0;
+        int totalComments = 0;
+
+        for (Recipe recipe : recipes) {
+            if (recipe.status.equals("Pending")) pending++;
+            if (recipe.status.equals("Approved")) approved++;
+            if (recipe.status.equals("Rejected")) rejected++;
+
+            totalRatings += recipe.ratingCount;
+            totalComments += recipe.comments.size();
+        }
+
+        System.out.println("\n===== RECIPE STATISTICS =====");
+        System.out.println("Total Users: " + users.size());
+        System.out.println("Total Recipes: " + recipes.size());
+        System.out.println("Pending Recipes: " + pending);
+        System.out.println("Approved Recipes: " + approved);
+        System.out.println("Rejected Recipes: " + rejected);
+        System.out.println("Total Ratings: " + totalRatings);
+        System.out.println("Total Comments: " + totalComments);
+    }
+
+    static void logActivity(String activity) {
+        activities.add(new Date() + " - " + activity);
+    }
+
+    static void showActivity() {
+        System.out.println("\n===== USER ACTIVITY =====");
+
+        if (activities.isEmpty()) {
+            System.out.println("No activities recorded.");
+            return;
+        }
+
+        for (String activity : activities) {
+            System.out.println(activity);
+        }
+    }
+}
